@@ -15,24 +15,25 @@ var spotify = new Spotify({
 
 //SPOTIFY SEARCHspotify
 var spotifyArg = process.argv[2];
-var spotifyQuery = process.argv.slice(3).reduce(function(sum, currentVal){
-	return sum + " " + currentVal;
-}); //takes everything entered from index 3 and on, then smashes it together to one item
+var spotifyQuery = process.argv.slice(3).join(' ');
+// var spotifyQuery = process.argv.slice(3).reduce(function(sum, currentVal){
+// 	return sum + " " + currentVal;
+// }); //takes everything entered from index 3 and on, then smashes it together to one item
 
-// console.log(spotifyQuery);
+console.log("Query: " + spotifyQuery);
 
-// if (spotifyQuery === null) {
-// 	fs.readFile("random.txt", "utf8", function(error, data) {
-// 	  if (error) {
-// 	    return console.log(error);
-// 	  }
+if (spotifyQuery === ' ') {
+	fs.readFile("random.txt", "utf8", function(error, data) {
+	  if (error) {
+	    return console.log(error);
+	  }
 
-// 	  // We will then print the contents of data
-// 	  console.log(data);
-// 	});
-// }
+	  // We will then print the contents of data
+	  console.log("I'm here " + data);
+	});
+}
 
-if (spotifyArg === 'spotify-this-song') {
+if (spotifyArg === 'spotify-this-song' && spotifyQuery != '') {
 
 	spotify.search({ type: 'track', query: spotifyQuery}, function(err, data) {
 		if (err) {
