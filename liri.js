@@ -1,10 +1,11 @@
+//LOOK INTO SWITCH() instead of all these if statements.... 07/18/17
+
 var sourceFile = require('./keys.js'); //links or 'requires' this JS file
-// console.log(sourceFile.twitterKeys.consumer_key); // this is how I call the keys from the key.js file
 //REQUIRED NODE MODULES
 var Twitter = require('twitter');
 var Spotify = require('node-spotify-api');
 var request = require('request');
-// var fs = require("fs"); //required to read files - NOT SURE I NEED THIS NOW
+var fs = require("fs");
 
 var client = new Twitter({
        consumer_key: sourceFile.twitterKeys.consumer_key,
@@ -37,53 +38,61 @@ if (nodeArg === 'my-tweets') {
 //SPOTIFY SEARCH
 if (nodeArg === 'spotify-this-song' && nodeQuery === '') {
 	
-		spotify.search({ type: 'track', query: 'The Sign'}, function(err, data) {
+		spotify.search({ type: 'track', query: 'I saw the sign', limit: '1'}, function(err, data) {
 		if (err) {
 	    	return console.log('Error occurred: ' + err);
 		}
 		// console.log(JSON.stringify(data, null, 2));
-			// // Artist(s)
-			console.log("Artists: " + JSON.stringify(data.tracks.items[0].artists[0].name)); 
-			// Song's name
-			console.log("Song name: " + JSON.stringify(data.tracks.items[0].name)); 
-			// Preview link of the song from Spotify
-			console.log("Preview Link: " + JSON.stringify(data.tracks.items[0].external_urls.spotify)); //MOST PREVIEW LINKS WERE NULL, SO I HAD TO USE THE LINK THE THE EXTERNAL PLAYER
-			// Album that the song is from
-			console.log("Album: " + JSON.stringify(data.tracks.items[0].album.name)); 
-			console.log('===============================================================');
+			var singleSong = "You didn't search anything, so here's this one... \r\nArtists: " + JSON.stringify(data.tracks.items[i].artists[0].name) + 
+				"\r\nSong name: " + JSON.stringify(data.tracks.items[i].name) + "\r\nPreview Link: " + 
+				JSON.stringify(data.tracks.items[i].external_urls.spotify) + "\r\nAlbum: " + 
+				JSON.stringify(data.tracks.items[i].album.name) + 
+				'\r\n===============================================================\r\n';
+
+			console.log(singleSong);
+			// write data to file
+			fs.appendFile("log.txt", singleSong, function(error, data) {
+			  if (error) {
+			    return console.log(error);
+			  	} // console.log("file updated!");
+			});
 		});
 	};
 
 if (nodeArg === 'spotify-this-song' && nodeQuery != '') {
 
-	spotify.search({ type: 'track', query: nodeQuery}, function(err, data) {
+	spotify.search({ type: 'track', query: nodeQuery, limit: '5'}, function(err, data) {
 		if (err) {
 	    	return console.log('Error occurred: ' + err);
 		}
 		// console.log(JSON.stringify(data, null, 2));
 		for (var i = 0; i < data.tracks.items.length; i++) {
 			// console.log(JSON.stringify(data, null, 2 ));
-			// // Artist(s)
-			console.log("Artists: " + JSON.stringify(data.tracks.items[i].artists[0].name)); 
-			// Song's name
-			console.log("Song name: " + JSON.stringify(data.tracks.items[i].name)); 
-			// Preview link of the song from Spotify
-			console.log("Preview Link: " + JSON.stringify(data.tracks.items[i].external_urls.spotify)); //MOST PREVIEW LINKS WERE NULL, SO I HAD TO USE THE LINK THE THE EXTERNAL PLAYER
-			// Album that the song is from
-			console.log("Album: " + JSON.stringify(data.tracks.items[i].album.name)); 
-			console.log('===============================================================');
-		};
+			var songInfo = "Artists: " + JSON.stringify(data.tracks.items[i].artists[0].name) + 
+				"\r\nSong name: " + JSON.stringify(data.tracks.items[i].name) + "\r\nPreview Link: " + 
+				JSON.stringify(data.tracks.items[i].external_urls.spotify) + "\r\nAlbum: " + 
+				JSON.stringify(data.tracks.items[i].album.name) + 
+				'\r\n===============================================================\r\n';
 
+			console.log(songInfo);
+			// write data to file
+			fs.appendFile("log.txt", songInfo, function(error, data) {
+			  if (error) {
+			    return console.log(error);
+			  	} // console.log("file updated!");
+			});
+		};
 	})
 };
 
+  fs.readFile("random.txt", "utf8", function(err, data) {
+    if (err) {
+      return console.log(err);
+    }
+    data = data.split(",");
+    process.argv[2] = data[0];
+    process.argv[3] = data[1];
 
-			// READING FROM FILE _ NOT USING AT THE MOMENT
-			// fs.readFile("random.txt", "utf8", function(error, data) {
-			//   if (error) {
-			//     return console.log(error);
-			//   }
+    console.log (process.argv[2] + " - " + process.argv[3]);
 
-			//   // We will then print the contents of data
-			//   console.log("I'm here " + data);
-			// });
+  });
