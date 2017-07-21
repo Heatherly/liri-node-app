@@ -18,7 +18,7 @@ var spotify = new Spotify({
 });
 
 var nodeArg = process.argv[2];
-var nodeQuery = process.argv.slice(3).join(' ');
+var nodeQuery = process.argv.slice(3).join('+');
 
 function runThisSwitch() {
 	switch (nodeArg) {
@@ -49,7 +49,15 @@ function myTwitter() {
 	client.get('statuses/user_timeline', params, function(error, tweets, response) {
    // console.log(tweets);
 	   for (var i = 0; i < tweets.length; i++) {
-		   console.log("Tweet " + (i+1) + ": " + tweets[i].text + "\r\n====================");
+		   var tweetData = "\r\nTweet " + (i+1) + ": " + tweets[i].text + "\r\n====================\r\n";
+		   
+		   console.log(tweetData);
+			// write data to file
+			fs.appendFile("log.txt", tweetData, function(error, data) {
+			  if (error) {
+			    return console.log(error);
+			  	} // console.log("file updated!");
+			});
 		}
 	});
 };
@@ -64,11 +72,11 @@ function spotifySearch() {
 		}
 
 		for (var i = 0; i < data.tracks.items.length; i++) {
-			var songInfo = "Artists: " + JSON.stringify(data.tracks.items[i].artists[0].name) + 
+			var songInfo = "\r\nArtists: " + JSON.stringify(data.tracks.items[i].artists[0].name) + 
 				"\r\nSong name: " + JSON.stringify(data.tracks.items[i].name) + "\r\nPreview Link: " + 
 				JSON.stringify(data.tracks.items[i].external_urls.spotify) + "\r\nAlbum: " + 
 				JSON.stringify(data.tracks.items[i].album.name) + 
-				'\r\n===============================================================\r\n';
+				'\r\n===============================================================';
 
 			console.log(songInfo);
 			// write data to file
@@ -81,6 +89,35 @@ function spotifySearch() {
 	});
 };
 
+//MOVIE SEARCH
+function movieSearch() {
+	if (nodeQuery === '') {
+		nodeQuery = 'Mr+Nobody'
+	}
+
+	var queryUrl = "http://www.omdbapi.com/?t=" + nodeQuery + "&y=&plot=short&tomatoes=true&apikey=40e9cece";
+	// console.log(queryUrl);
+
+	request(queryUrl, function(error, response, body) {
+
+	  // If the request is successful
+	  if (!error && response.statusCode === 200) {
+
+		var movieData = "\r\n" + JSON.parse(body).Title + "\r\nReleased: " + JSON.parse(body).Year + "\r\nIMDB Rating: " + JSON.parse(body).Ratings[0].Value + "\rProduced in: " + JSON.parse(body).Country + "\r\nLanguage: " + JSON.parse(body).Language + "\r\nPlot: " + JSON.parse(body).Plot + "\r\nActors: " + JSON.parse(body).Actors + "\r\nRotten Tomatoes: " + JSON.parse(body).Ratings[1].Value;
+  		
+
+  		console.log(movieData);
+			// write data to file
+			fs.appendFile("log.txt", movieData, function(error, data) {
+			  if (error) {
+			    return console.log(error);
+			  	} // console.log("file updated!");
+			});
+		};
+  	});
+};
+
+//READ FILE AND RUN COMMAND
 function doThis() {
   fs.readFile("random.txt", "utf8", function(err, data) {
     if (err) {
